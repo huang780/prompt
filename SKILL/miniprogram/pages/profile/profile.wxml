@@ -1,0 +1,149 @@
+<view class="container">
+  <!-- 用户统计卡片 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <text class="stat-value">{{userStats.total}}</text>
+      <text class="stat-label">累计记录</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{userStats.pending}}</text>
+      <text class="stat-label">待处理</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{userStats.completed}}</text>
+      <text class="stat-label">已完成</text>
+    </view>
+  </view>
+
+  <!-- 设置列表 -->
+  <view class="settings-list">
+    <!-- 订阅通知 -->
+    <view class="setting-item" bindtap="subscribeNotification" wx:if="{{!hasSubscribed}}">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/notification.png"/>
+        <text class="setting-title">开启每日提醒</text>
+      </view>
+      <image class="arrow" src="/images/arrow.png"/>
+    </view>
+
+    <!-- 提醒时间 -->
+    <view class="setting-item" bindtap="showTimePicker">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/time.png"/>
+        <text class="setting-title">提醒时间</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-value">{{reminderTime}}</text>
+        <image class="arrow" src="/images/arrow.png"/>
+      </view>
+    </view>
+
+    <!-- 自定义标签 -->
+    <view class="setting-item" bindtap="showTagModal">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/tag.png"/>
+        <text class="setting-title">自定义标签</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-value">{{customTags.length}}/5</text>
+        <image class="arrow" src="/images/arrow.png"/>
+      </view>
+    </view>
+
+    <!-- 清理缓存 -->
+    <view class="setting-item" bindtap="clearCache">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/clear.png"/>
+        <text class="setting-title">清理缓存</text>
+      </view>
+      <image class="arrow" src="/images/arrow.png"/>
+    </view>
+
+    <!-- 关于我们 -->
+    <view class="setting-item" bindtap="showAbout">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/about.png"/>
+        <text class="setting-title">关于我们</text>
+      </view>
+      <image class="arrow" src="/images/arrow.png"/>
+    </view>
+
+    <!-- 反馈建议 -->
+    <view class="setting-item" bindtap="feedback">
+      <view class="setting-left">
+        <image class="setting-icon" src="/images/feedback.png"/>
+        <text class="setting-title">反馈建议</text>
+      </view>
+      <image class="arrow" src="/images/arrow.png"/>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text>小事清 v1.0</text>
+  </view>
+</view>
+
+<!-- 时间选择弹窗 -->
+<view class="modal {{showTimePicker ? 'show' : ''}}" bindtap="closeTimePicker">
+  <view class="modal-content" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">选择提醒时间</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeTimePicker"/>
+    </view>
+    
+    <view class="modal-body">
+      <picker-view class="time-picker" value="{{[parseInt(reminderTime.split(':')[0]), parseInt(reminderTime.split(':')[1]) / 5]}}" bindchange="onTimeChange">
+        <picker-view-column>
+          <view wx:for="{{24}}" wx:key="*this">{{item < 10 ? '0' + item : item}}时</view>
+        </picker-view-column>
+        <picker-view-column>
+          <view wx:for="{{12}}" wx:key="*this">{{item * 5 < 10 ? '0' + item * 5 : item * 5}}分</view>
+        </picker-view-column>
+      </picker-view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="save-btn" bindtap="saveReminderTime">保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- 标签管理弹窗 -->
+<view class="modal {{showTagModal ? 'show' : ''}}" bindtap="closeTagModal">
+  <view class="modal-content tag-modal" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">自定义标签</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeTagModal"/>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y>
+      <view class="tag-list">
+        <view class="tag-item" wx:for="{{customTags}}" wx:key="id">
+          <text class="tag-name">{{item.name}}</text>
+          <text class="tag-delete" bindtap="deleteCustomTag" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+      
+      <view class="add-tag-section" wx:if="{{customTags.length < 5}}">
+        <view class="add-tag-input">
+          <text class="tag-prefix">#</text>
+          <input 
+            type="text"
+            placeholder="输入标签名称(4-8字)"
+            maxlength="8"
+            value="{{newTagName}}"
+            bindinput="onTagInput"
+          />
+        </view>
+        <button class="add-btn" bindtap="addCustomTag">添加</button>
+      </view>
+      
+      <view class="tag-limit" wx:if="{{customTags.length >= 5}}">
+        <text>已达到自定义标签上限(5个)</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

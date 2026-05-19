@@ -1,0 +1,269 @@
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
+/* 统计卡片 */
+.stats-card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: white;
+  border-radius: 16rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12rpx;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: var(--border);
+}
+
+/* 设置列表 */
+.settings-list {
+  background: white;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.setting-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.setting-title {
+  font-size: 30rpx;
+  color: var(--text-primary);
+}
+
+.setting-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.setting-value {
+  font-size: 28rpx;
+  color: var(--text-tertiary);
+}
+
+.arrow {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.5;
+}
+
+/* 版本信息 */
+.version-info {
+  text-align: center;
+  padding: 60rpx;
+  color: var(--text-tertiary);
+  font-size: 26rpx;
+}
+
+/* 弹窗 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  width: 100%;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.close-btn {
+  width: 48rpx;
+  height: 48rpx;
+  padding: 8rpx;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 30rpx;
+  max-height: 50vh;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx 40rpx;
+  border-top: 1rpx solid var(--border);
+}
+
+/* 时间选择器 */
+.time-picker {
+  height: 400rpx;
+}
+
+.time-picker view {
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 32rpx;
+}
+
+.save-btn {
+  width: 100%;
+  height: 88rpx;
+  background: var(--primary);
+  color: white;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn::after {
+  border: none;
+}
+
+/* 标签管理 */
+.tag-modal .modal-body {
+  padding: 20rpx 30rpx;
+}
+
+.tag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 30rpx;
+}
+
+.tag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+}
+
+.tag-name {
+  font-size: 30rpx;
+  color: var(--text-primary);
+}
+
+.tag-delete {
+  font-size: 28rpx;
+  color: var(--danger);
+}
+
+.add-tag-section {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.add-tag-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+}
+
+.tag-prefix {
+  font-size: 32rpx;
+  color: var(--primary);
+  margin-right: 8rpx;
+}
+
+.add-tag-input input {
+  flex: 1;
+  font-size: 30rpx;
+}
+
+.add-btn {
+  padding: 0 40rpx;
+  background: var(--primary);
+  color: white;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+}
+
+.add-btn::after {
+  border: none;
+}
+
+.tag-limit {
+  text-align: center;
+  padding: 40rpx;
+  color: var(--text-tertiary);
+  font-size: 28rpx;
+}

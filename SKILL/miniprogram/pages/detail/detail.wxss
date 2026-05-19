@@ -1,0 +1,542 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  padding-bottom: 120rpx;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx;
+  color: var(--text-tertiary);
+}
+
+.detail-content {
+  padding: 20rpx;
+}
+
+/* 头部卡片 */
+.header-card {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.task-icon {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 20rpx;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50rpx;
+  margin-right: 24rpx;
+}
+
+.header-info {
+  flex: 1;
+}
+
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.tag {
+  padding: 8rpx 16rpx;
+  background: #e8f5e9;
+  color: var(--primary);
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.create-time {
+  font-size: 26rpx;
+  color: var(--text-tertiary);
+}
+
+.status-badge {
+  padding: 12rpx 24rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+}
+
+.status-badge.pending {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.status-badge.completed {
+  background: #e8f5e9;
+  color: var(--primary);
+}
+
+/* 内容卡片 */
+.content-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.content-text {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  line-height: 1.8;
+  margin-bottom: 24rpx;
+}
+
+.meta-row {
+  display: flex;
+  gap: 30rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.meta-icon {
+  font-size: 32rpx;
+}
+
+/* 证据卡片 */
+.evidence-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+}
+
+.images-scroll {
+  width: 100%;
+}
+
+.images-list {
+  display: flex;
+  gap: 16rpx;
+}
+
+.image-item {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image-item image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 音频播放 */
+.audio-player {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  gap: 20rpx;
+}
+
+.play-btn {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.audio-wave {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  height: 40rpx;
+}
+
+.wave-bar {
+  width: 6rpx;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3rpx;
+  animation: wave 0.5s ease-in-out infinite alternate;
+}
+
+.wave-bar:nth-child(2n) {
+  animation-delay: 0.1s;
+}
+
+.wave-bar:nth-child(3n) {
+  animation-delay: 0.2s;
+}
+
+@keyframes wave {
+  from { height: 40%; }
+  to { height: 100%; }
+}
+
+.audio-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* 备注卡片 */
+.remark-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.remark-text {
+  font-size: 30rpx;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* 操作栏 */
+.actions-bar {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+  background: white;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  line-height: normal;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn image {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.action-btn text {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 弹窗样式 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 32rpx 32rpx 0 0;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.edit-modal {
+  max-height: 90vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.close-btn {
+  width: 48rpx;
+  height: 48rpx;
+  padding: 8rpx;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 30rpx;
+  max-height: 70vh;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx 40rpx;
+  border-top: 1rpx solid var(--border);
+}
+
+/* 表单 */
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  margin-bottom: 16rpx;
+}
+
+.content-input, .remark-input {
+  width: 100%;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  box-sizing: border-box;
+}
+
+.content-input {
+  height: 180rpx;
+}
+
+.remark-input {
+  height: 120rpx;
+}
+
+.minutes-input {
+  width: 200rpx;
+  padding: 16rpx 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  font-size: 30rpx;
+}
+
+/* 状态切换 */
+.status-toggle {
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.toggle-option {
+  flex: 1;
+  padding: 16rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.toggle-option.active {
+  background: var(--primary);
+  color: white;
+}
+
+/* 标签选择 */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+}
+
+.tag-selected {
+  background: var(--primary);
+  color: white;
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.add-tag {
+  padding: 12rpx 24rpx;
+  color: var(--text-tertiary);
+  font-size: 28rpx;
+}
+
+/* 图片列表 */
+.images-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.image-item image {
+  width: 100%;
+  height: 100%;
+}
+
+.image-item .remove-btn {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 8rpx;
+}
+
+.add-image {
+  width: 180rpx;
+  height: 180rpx;
+  border: 2rpx dashed var(--border);
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-image image {
+  width: 60rpx;
+  height: 60rpx;
+  opacity: 0.5;
+}
+
+/* 音频 */
+.audio-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+}
+
+.audio-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: 16rpx;
+}
+
+.audio-text {
+  flex: 1;
+  font-size: 28rpx;
+}
+
+.audio-actions {
+  display: flex;
+  gap: 20rpx;
+  font-size: 26rpx;
+  color: var(--primary);
+}
+
+.add-audio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  gap: 16rpx;
+}
+
+.add-audio image {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.add-audio text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+/* 按钮 */
+.save-btn, .confirm-btn {
+  width: 100%;
+  height: 88rpx;
+  background: var(--primary);
+  color: white;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-btn::after, .confirm-btn::after {
+  border: none;
+}
+
+/* 标签弹窗 */
+.tag-modal .modal-body {
+  padding: 30rpx;
+}
+
+.tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag-option {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: var(--bg-secondary);
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+}
+
+.tag-option.selected {
+  background: #e8f5e9;
+  border-color: var(--primary);
+}
+
+.tag-option .tag-icon {
+  font-size: 32rpx;
+  margin-right: 8rpx;
+}
+
+.tag-option .tag-name {
+  font-size: 28rpx;
+}

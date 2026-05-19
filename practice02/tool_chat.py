@@ -2,7 +2,7 @@ import os
 import json
 import http.client
 import sys
-from tools import list_files, rename_file, delete_file, create_file, read_file
+from tools import list_files, rename_file, delete_file, create_file, read_file, curl, get_date
 
 # 读取.env文件
 def load_env():
@@ -18,7 +18,10 @@ def load_env():
 
 # 构建系统提示词
 def get_system_prompt():
-    return """你是一个智能助手，具有以下工具调用能力：
+    today = get_date()
+    return f"""你是一个智能助手，具有以下工具调用能力：
+
+当前日期：{today}
 
 可用工具：
 1. list_files(directory: str) - 列出某个目录下的所有文件及其基本属性
@@ -26,12 +29,14 @@ def get_system_prompt():
 3. delete_file(directory: str, filename: str) - 删除某个目录下的某个文件
 4. create_file(directory: str, filename: str, content: str) - 在某个目录下新建1个文件，并且写入内容
 5. read_file(directory: str, filename: str) - 读取某个目录下的某个文件的内容
+6. curl(url: str) - 通过HTTP/HTTPS访问网页并返回网页内容
+7. get_date() - 获取今天的日期
 
 当需要使用工具时，请以JSON格式输出工具调用请求，格式如下：
-{"toolcall": {"name": "工具名称", "params": {"参数1": "值1", "参数2": "值2"}}}
+{{"toolcall": {{"name": "工具名称", "params": {{"参数1": "值1", "参数2": "值2"}}}}}}
 
 当工具执行完成后，我会返回工具执行结果，格式如下：
-{"toolresult": "工具执行结果"}
+{{"toolresult": "工具执行结果"}}
 
 请根据用户的需求，决定是否需要调用工具。"""
 
@@ -97,6 +102,10 @@ def execute_tool_call(tool_call):
             params.get('directory', ''),
             params.get('filename', '')
         )
+    elif tool_name == 'curl':
+        return curl(params.get('url', ''))
+    elif tool_name == 'get_date':
+        return get_date()
     else:
         return f"错误：未知工具 {tool_name}"
 

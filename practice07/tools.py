@@ -4,6 +4,7 @@ import http.client
 import urllib.parse
 import ssl
 from datetime import datetime
+import yaml
 
 # 1. 列出某个目录下有哪些文件（包括文件的基本属性、大小等信息）
 def list_files(directory):
@@ -30,9 +31,9 @@ def list_files(directory):
                 stat = os.stat(filepath)
                 files.append({
                     "name": filename,
-                    "size": stat.st_size,  # 文件大小（字节）
-                    "mtime": time.ctime(stat.st_mtime),  # 最后修改时间
-                    "mode": stat.st_mode  # 文件权限模式
+                    "size": stat.st_size,
+                    "mtime": time.ctime(stat.st_mtime),
+                    "mode": stat.st_mode
                 })
             elif os.path.isdir(filepath):
                 files.append({
@@ -151,8 +152,12 @@ def read_file(directory, filename):
         if not os.path.isfile(filepath):
             return f"错误：{filepath} 不是一个文件"
         
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            with open(filepath, 'r', encoding='gbk', errors='replace') as f:
+                content = f.read()
         
         return content
     except Exception as e:
@@ -202,7 +207,7 @@ def fetch_webpage(url):
         return f"错误：{str(e)}"
 
 # 8. 访问AnythingLLM API
-def anythingllm_query(message, api_key, workspace_slug):
+def anythingllm_query(message,api_key, workspace_slug):
     """
     访问AnythingLLM的聊天API接口
     
@@ -218,15 +223,12 @@ def anythingllm_query(message, api_key, workspace_slug):
         import subprocess
         import json
         
-        # 构建API URL
         url = f"http://localhost:3001/api/v1/workspace/{workspace_slug}/chat"
         
-        # 构建请求数据
         data = json.dumps({
             "message": message
         }, ensure_ascii=False)
         
-        # 构建curl命令
         cmd = [
             "curl",
             "-X", "POST",
@@ -236,39 +238,93 @@ def anythingllm_query(message, api_key, workspace_slug):
             "-d", data
         ]
         
-        # 执行curl命令
         result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=30
+            stderr=subprocess.PIPE
         )
         
-        # 检查执行结果
         if result.returncode != 0:
-            stderr = result.stderr.decode('utf-8', errors='replace')
-            # 判断错误类型
-            if "Connection refused" in stderr or "Connection reset" in stderr:
-                return f"错误：无法连接到AnythingLLM服务。请确保：\n1. AnythingLLM服务正在运行\n2. 服务端口为3001\n3. 工作区 {workspace_slug} 已正确配置\n\n详细错误：{stderr}"
-            elif "401" in stderr or "Unauthorized" in stderr:
-                return f"错误：API密钥无效或未授权。请检查.env文件中的ANYTHINGLLM_API_KEY配置"
-            elif "404" in stderr:
-                return f"错误：工作区 {workspace_slug} 不存在。请检查.env文件中的ANYTHINGLLM_WORKSPACE_SLUG配置"
-            else:
-                return f"错误：curl执行失败 - {stderr}"
+            return f"错误：curl执行失败 - {result.stderr.decode('utf-8', errors='replace')}"
         
-        # 解析响应
+        return result.stdout.decode('utf-8', errors='replace')
+    except Exception as e:
+        return f"错误：{str(e)}"
+
+# 读取技能列表
+def list_available_skills():
+    """
+    读取技能列表
+    
+    Returns:
+        技能列表，每个技能包含name和description字段
+    """
+    try:
+        skills_dir = "D:\\AI\\prompt\\.agents\\skills"
+        if not os.path.exists(skills_dir):
+            return []
+        
+        skills = []
+        for skill_name in os.listdir(skills_dir):
+            skill_path = os.path.join(skills_dir, skill_name)
+            if os.path.isdir(skill_path):
+                skill_file = os.path.join(skill_path, "SKILL.md")
+                if os.path.exists(skill_file):
+                    try:
+                        with open(skill_file, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                    except UnicodeDecodeError:
+                        with open(skill_file, 'r', encoding='gbk', errors='replace') as f:
+                            content = f.read()
+                    if content.startswith('---'):
+                        front_matter_end = content.find('---', 3)
+                        if front_matter_end != -1:
+                            front_matter = content[3:front_matter_end].strip()
+                            try:
+                                data = yaml.safe_load(front_matter)
+                                if 'name' in data and 'description' in data:
+                                    skills.append({
+                                        'name': data['name'],
+                                        'description': data['description']
+                                    })
+                            except yaml.YAMLError:
+                                pass
+        
+        return skills
+    except Exception as e:
+        print(f"读取技能列表失败: {e}")
+        return []
+
+# 读取技能正文
+def load_skill_content(skill_name):
+    """
+    读取技能正文内容
+    
+    Args:
+        skill_name: 技能名称
+    
+    Returns:
+        技能正文内容或错误信息
+    """
+    try:
+        skill_path = os.path.join("D:\\AI\\prompt\\.agents\\skills", skill_name)
+        skill_file = os.path.join(skill_path, "SKILL.md")
+        
+        if not os.path.exists(skill_file):
+            return f"错误：技能文件 {skill_file} 不存在"
+        
         try:
-            response = json.loads(result.stdout.decode('utf-8', errors='replace'))
-            # 检查是否有错误字段
-            if 'error' in response and response['error']:
-                return f"错误：{response['error']}"
-            return result.stdout.decode('utf-8', errors='replace')
-        except json.JSONDecodeError:
-            # 如果不是JSON格式，直接返回原始响应
-            return result.stdout.decode('utf-8', errors='replace')
-            
-    except subprocess.TimeoutExpired:
-        return "错误：请求超时。请检查AnythingLLM服务是否正常运行"
+            with open(skill_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            with open(skill_file, 'r', encoding='gbk', errors='replace') as f:
+                content = f.read()
+        
+        if content.startswith('---'):
+            front_matter_end = content.find('---', 3)
+            if front_matter_end != -1:
+                return content[front_matter_end+3:].strip()
+        
+        return content
     except Exception as e:
         return f"错误：{str(e)}"

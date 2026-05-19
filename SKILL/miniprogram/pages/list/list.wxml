@@ -1,0 +1,170 @@
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view class="filter-item" bindtap="showFilter">
+      <text>筛选</text>
+      <image class="filter-icon" src="/images/filter.png"/>
+    </view>
+    <view class="filter-tags" wx:if="{{filterStatus !== null || filterTags.length > 0 || filterHasEvidence}}">
+      <text class="active-filter" wx:if="{{filterStatus !== null}}">{{filterStatus === 0 ? '待处理' : '已处理'}}</text>
+      <text class="active-filter" wx:for="{{filterTags}}" wx:key="*this">{{item}}</text>
+      <text class="active-filter" wx:if="{{filterHasEvidence}}">有证据</text>
+      <text class="clear-filter" bindtap="clearFilter">清除</text>
+    </view>
+  </view>
+
+  <!-- 任务列表 -->
+  <scroll-view class="task-list" scroll-y refresher-enabled bindrefresherrefresh="onPullDownRefresh">
+    <block wx:if="{{Object.keys(groupedTasks).length > 0}}">
+      <view class="date-group" wx:for="{{groupedTasks}}" wx:for-item="group" wx:for-index="date" wx:key="date">
+        <view class="date-header">{{date}}</view>
+        <view class="task-cards">
+          <view 
+            class="task-card {{item.status === 1 ? 'completed' : ''}}"
+            wx:for="{{group}}"
+            wx:key="_id"
+            data-id="{{item._id}}"
+            bindtap="goToDetail"
+            bindlongpress="enterMultiSelect"
+          >
+            <!-- 多选框 -->
+            <view class="checkbox" wx:if="{{isMultiSelect}}" catchtap="toggleSelect" data-id="{{item._id}}">
+              <view class="checkbox-inner {{selectedTasks.includes(item._id) ? 'checked' : ''}}"></view>
+            </view>
+            
+            <!-- 标签图标 -->
+            <view class="task-icon">{{item.tagIcon}}</view>
+            
+            <!-- 内容区 -->
+            <view class="task-content">
+              <text class="task-text">{{item.shortContent}}</text>
+              <view class="task-meta">
+                <text class="task-time">{{item.minutes}}分钟</text>
+                <view class="task-tags">
+                  <text class="tag-mini" wx:for="{{item.displayTags}}" wx:key="*this">{{item}}</text>
+                </view>
+              </view>
+            </view>
+            
+            <!-- 右侧 -->
+            <view class="task-right">
+              <!-- 状态 -->
+              <view class="status-dot {{item.status === 1 ? 'completed' : 'pending'}}"></view>
+              <!-- 证据标记 -->
+              <view class="evidence-mark" wx:if="{{item.hasImages || item.hasAudio}}">
+                <text wx:if="{{item.hasImages}}">📷</text>
+                <text wx:if="{{item.hasAudio}}">🎙️</text>
+              </view>
+            </view>
+            
+            <!-- 左滑操作区 -->
+            <view class="swipe-actions" wx:if="{{!isMultiSelect}}">
+              <view class="action-btn complete" catchtap="markComplete" data-id="{{item._id}}" wx:if="{{item.status === 0}}">
+                完成
+              </view>
+              <view class="action-btn delete" catchtap="deleteTask" data-id="{{item._id}}">
+                删除
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{Object.keys(groupedTasks).length === 0 && !loading}}">
+      <image class="empty-icon" src="/images/empty.png" mode="aspectFit"/>
+      <text>还没有记录，快去添加吧</text>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    <view class="no-more" wx:if="{{!hasMore && tasks.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </scroll-view>
+
+  <!-- 多选操作栏 -->
+  <view class="multi-select-bar" wx:if="{{isMultiSelect}}">
+    <view class="select-info">
+      <text>已选择 {{selectedTasks.length}} 项</text>
+      <text class="cancel-btn" bindtap="exitMultiSelect">取消</text>
+    </view>
+    <view class="select-actions">
+      <view class="action-btn" bindtap="batchComplete">
+        <image src="/images/check.png"/>
+        <text>完成</text>
+      </view>
+      <view class="action-btn delete" bindtap="batchDelete">
+        <image src="/images/delete.png"/>
+        <text>删除</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 筛选面板 -->
+<view class="modal {{showFilterPanel ? 'show' : ''}}" bindtap="closeFilter">
+  <view class="filter-panel" catchtap="preventClose">
+    <view class="panel-header">
+      <text class="panel-title">筛选条件</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeFilter"/>
+    </view>
+    
+    <scroll-view class="panel-body" scroll-y>
+      <!-- 状态筛选 -->
+      <view class="filter-section">
+        <view class="section-title">状态</view>
+        <view class="filter-options">
+          <view 
+            class="option {{filterStatus === null ? 'active' : ''}}"
+            data-status="all"
+            bindtap="selectStatus"
+          >全部</view>
+          <view 
+            class="option {{filterStatus === 0 ? 'active' : ''}}"
+            data-status="0"
+            bindtap="selectStatus"
+          >待处理</view>
+          <view 
+            class="option {{filterStatus === 1 ? 'active' : ''}}"
+            data-status="1"
+            bindtap="selectStatus"
+          >已处理</view>
+        </view>
+      </view>
+      
+      <!-- 标签筛选 -->
+      <view class="filter-section">
+        <view class="section-title">标签</view>
+        <view class="filter-options">
+          <view 
+            class="option {{filterTags.includes(item.name) ? 'active' : ''}}"
+            wx:for="{{allTags}}"
+            wx:key="id"
+            data-tag="{{item}}"
+            bindtap="toggleTagFilter"
+          >{{item.name}}</view>
+        </view>
+      </view>
+      
+      <!-- 证据筛选 -->
+      <view class="filter-section">
+        <view class="section-title">其他</view>
+        <view class="filter-options">
+          <view 
+            class="option {{filterHasEvidence ? 'active' : ''}}"
+            bindtap="toggleEvidenceFilter"
+          >仅显示有证据</view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="panel-footer">
+      <button class="clear-btn" bindtap="clearFilter">清除筛选</button>
+      <button class="confirm-btn" bindtap="closeFilter">确定</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,130 @@
+<view class="container">
+  <!-- 日期选择 -->
+  <view class="date-selector card">
+    <view 
+      class="date-option {{dateRange === 'week' ? 'active' : ''}}"
+      data-range="week"
+      bindtap="changeDateRange"
+    >本周</view>
+    <view 
+      class="date-option {{dateRange === 'lastWeek' ? 'active' : ''}}"
+      data-range="lastWeek"
+      bindtap="changeDateRange"
+    >上周</view>
+    <view 
+      class="date-option {{dateRange === 'month' ? 'active' : ''}}"
+      data-range="month"
+      bindtap="changeDateRange"
+    >本月</view>
+    <view 
+      class="date-option {{dateRange === 'lastMonth' ? 'active' : ''}}"
+      data-range="lastMonth"
+      bindtap="changeDateRange"
+    >上月</view>
+  </view>
+
+  <!-- 统计概览 -->
+  <view class="stats-overview card">
+    <view class="stat-item">
+      <text class="stat-value">{{totalMinutes}}</text>
+      <text class="stat-label">总被偷时间(分钟)</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{taskCount}}</text>
+      <text class="stat-label">记录条数</text>
+    </view>
+  </view>
+
+  <!-- 饼图 -->
+  <view class="pie-chart card" wx:if="{{pieData.length > 0}}">
+    <view class="card-title">时间分布</view>
+    <view class="chart-container">
+      <view class="pie-wrapper">
+        <view class="pie" style="background: conic-gradient({{pieData.map((item, i) => getPieColor(i) + ' ' + getPieAngle(item, i)).join(', ')}});"></view>
+      </view>
+      <view class="pie-legend">
+        <view class="legend-item" wx:for="{{pieData}}" wx:key="name">
+          <view class="legend-color" style="background: {{getPieColor(index)}}"></view>
+          <text class="legend-name">{{item.name}}</text>
+          <text class="legend-value">{{item.percentage}}%</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 排行榜 -->
+  <view class="rank-list card">
+    <view class="card-title">偷时排行榜 TOP5</view>
+    <view class="rank-items">
+      <view 
+        class="rank-item"
+        wx:for="{{rankList}}"
+        wx:key="name"
+        bindtap="onRankItemTap"
+        data-tag="{{item.name}}"
+      >
+        <view class="rank-number {{item.rank <= 3 ? 'top' : ''}}">{{item.rank}}</view>
+        <view class="rank-icon">{{item.icon}}</view>
+        <view class="rank-info">
+          <text class="rank-name">{{item.name}}</text>
+          <text class="rank-count">{{item.count}}次</text>
+        </view>
+        <view class="rank-stats">
+          <text class="rank-minutes">{{item.minutes}}分钟</text>
+          <text class="rank-percentage">{{item.percentage}}%</text>
+        </view>
+      </view>
+    </view>
+    <view class="rank-empty" wx:if="{{rankList.length === 0}}">
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="action-btn primary" bindtap="showEvidenceModal">
+      <image src="/images/evidence.png"/>
+      <text>生成维权证据包</text>
+    </button>
+    <button class="action-btn secondary" open-type="share">
+      <image src="/images/share.png"/>
+      <text>分享周报</text>
+    </button>
+  </view>
+</view>
+
+<!-- 证据包弹窗 -->
+<view class="modal {{showEvidenceModal ? 'show' : ''}}" bindtap="closeEvidenceModal">
+  <view class="modal-content" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">选择要导出的证据</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeEvidenceModal"/>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y>
+      <view class="evidence-list">
+        <view 
+          class="evidence-item"
+          wx:for="{{evidenceTasks}}"
+          wx:key="_id"
+          bindtap="toggleEvidenceSelect"
+          data-id="{{item._id}}"
+        >
+          <view class="checkbox {{selectedEvidence.includes(item._id) ? 'checked' : ''}}"></view>
+          <view class="evidence-content">
+            <text class="evidence-text">{{item.content}}</text>
+            <view class="evidence-meta">
+              <text class="evidence-tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+              <text class="evidence-time">{{item.minutes}}分钟</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="modal-footer">
+      <text class="selected-count">已选择 {{selectedEvidence.length}} 条</text>
+      <button class="generate-btn" bindtap="generateEvidencePackage">生成证据包</button>
+    </view>
+  </view>
+</view>

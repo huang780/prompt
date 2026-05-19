@@ -1,0 +1,57 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/list/list",
+    "pages/detail/detail",
+    "pages/analytics/analytics",
+    "pages/evidence/evidence",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "小事清",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#07c160",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "记录",
+        "iconPath": "images/tab_record.png",
+        "selectedIconPath": "images/tab_record_active.png"
+      },
+      {
+        "pagePath": "pages/list/list",
+        "text": "清单",
+        "iconPath": "images/tab_list.png",
+        "selectedIconPath": "images/tab_list_active.png"
+      },
+      {
+        "pagePath": "pages/analytics/analytics",
+        "text": "分析",
+        "iconPath": "images/tab_analytics.png",
+        "selectedIconPath": "images/tab_analytics_active.png"
+      },
+      {
+        "pagePath": "pages/evidence/evidence",
+        "text": "证据箱",
+        "iconPath": "images/tab_evidence.png",
+        "selectedIconPath": "images/tab_evidence_active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab_profile.png",
+        "selectedIconPath": "images/tab_profile_active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "lazyCodeLoading": "requiredComponents"
+}

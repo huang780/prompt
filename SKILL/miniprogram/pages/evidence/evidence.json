@@ -1,0 +1,6 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "证据箱",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

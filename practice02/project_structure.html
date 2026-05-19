@@ -1,0 +1,357 @@
+<!--
+ * Copyright (c) 2015 Mountainstorm
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Original from https://github.com/mountainstorm/jquery.graphviz.svg/blob/master/demo.html
+ -->
+<html>
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" href="css/graphviz.svg.css"> -->
+	</head>
+
+	<style>
+        #instructions {
+            color: #000000;
+            position: absolute;
+            z-index: 100;
+            bottom: 0px;
+            left: 0px;
+        }
+    </style>
+	<body>
+		<h4 id="instructions">Click node to highlight; Shift-scroll to zoom; Esc to unhighlight</h4>
+		<div id="graph" style="width: 100%; height: 100%; overflow: scroll;"></div>
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-mousewheel/master/jquery.mousewheel.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-color/master/jquery.color.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript">!function(t){"use strict";String.prototype.startsWith=function(t){return 0==this.indexOf(t)},String.prototype.endsWith=function(t){return-1!==this.indexOf(t,this.length-t.length)};var e=function(t,e){this.type=null,this.options=null,this.enabled=null,this.$element=null,this.init("graphviz.svg",t,e)};e.VERSION="1.0.1",e.GVPT_2_PX=32.5,e.DEFAULTS={url:null,svg:null,shrink:"0.125pt",tooltips:{init:function(e){var i=t(this);i.tooltip({container:e,placement:"auto left",animation:!1,viewport:null}).on("hide.bs.tooltip",function(){if(i.attr("data-tooltip-keepvisible"))return!1})},show:function(){var e=t(this);e.attr("data-tooltip-keepvisible",!0),e.tooltip("show")},hide:function(){var e=t(this);e.removeAttr("data-tooltip-keepvisible"),e.tooltip("hide")},update:function(){var e=t(this);e.attr("data-tooltip-keepvisible")&&e.tooltip("show")}},zoom:!0,highlight:{selected:function(t,e){return t},unselected:function(t,e){return jQuery.Color(t).transition(e,.9)}},ready:null},e.prototype.init=function(e,i,n){if(this.enabled=!0,this.type=e,this.$element=t(i),this.options=this.getOptions(n),n.url){var o=this;t.get(n.url,null,function(e){var i=t("svg",e);o.$element.html(document.adoptNode(i[0])),o.setup()},"xml")}else n.svg&&this.$element.html(n.svg),this.setup()},e.prototype.getDefaults=function(){return e.DEFAULTS},e.prototype.getOptions=function(e){return(e=t.extend({},this.getDefaults(),this.$element.data(),e)).shrink&&("object"!=typeof e.shrink&&(e.shrink={x:e.shrink,y:e.shrink}),e.shrink.x=this.convertToPx(e.shrink.x),e.shrink.y=this.convertToPx(e.shrink.y)),e},e.prototype.setup=function(){var e=this.options,i=t(this.$element.children("svg")),n=i.children("g:first");this.$svg=i,this.$graph=n,this.$background=n.children("polygon:first"),this.$nodes=n.children(".node"),this.$edges=n.children(".edge"),this._nodesByName={},this._edgesByName={},this.$element.addClass("graphviz-svg"),this.$background.length&&this.$element.css("background",this.$background.attr("fill"));var o=this;this.$nodes.each(function(){o.setupNodesEdges(t(this),!0)}),this.$edges.each(function(){o.setupNodesEdges(t(this),!1)});var r=this.$graph.children("title");this.$graph.attr("data-name",r.text()),r.remove(),e.zoom&&this.setupZoom(),e.ready&&e.ready.call(this)},e.prototype.setupNodesEdges=function(e,i){var n=this,o=this.options;e.find("polygon, ellipse, path").each(function(){var e=t(this);e.data("graphviz.svg.color",{fill:e.attr("fill"),stroke:e.attr("stroke")}),i&&o.shrink&&n.scaleNode(e)});var r,s,h=e.children("title");if(h[0]){var a=h.text().replace(/:[snew][ew]?/g,"");e.attr("data-name",a),h.remove(),i?this._nodesByName[a]=e[0]:this._edgesByName[a]=e[0];for(var l=e[0].previousSibling;l&&8!=l.nodeType;)l=l.previousSibling;if(null!=l&&8==l.nodeType){var p=(r=l.nodeValue.trim(),(s=document.createElement("div")).innerHTML=r,s.childNodes[0].nodeValue);p!=a&&e.attr("data-comment",p)}}e.children("a").filter(function(){return t(this).attr("xlink:title")}).each(function(){var e=t(this);e.attr("title",e.attr("xlink:title")),e.removeAttr("xlink:title"),o.tooltips&&o.tooltips.init.call(this,n.$element)})},e.prototype.setupZoom=function(){var t=this,e=this.$element,i=this.$svg;this.zoom={width:i.attr("width"),height:i.attr("height"),percentage:null},this.scaleView(100),e.mousewheel(function(n){if(n.shiftKey){var o=t.zoom.percentage;(o-=n.deltaY*n.deltaFactor)<100&&(o=100);var r=n.pageX-i.offset().left,s=n.pageY-i.offset().top,h=r/i.width(),a=s/i.height(),l=n.pageX-e.offset().left,p=n.pageY-e.offset().top;return t.scaleView(o),e.scrollLeft(h*i.width()+.5-l),e.scrollTop(a*i.height()+.5-p),!1}})},e.prototype.scaleView=function(t){var e=this,i=this.$svg;i.attr("width",t+"%"),i.attr("height",t+"%"),this.zoom.percentage=t,this.$nodes.add(this.$edges).children("a[title]").each(function(){e.options.tooltips.update.call(this)})},e.prototype.scaleNode=function(t){var e=this.options.shrink.x,i=this.options.shrink.y,n=t.prop("tagName");if("ellipse"==n)t.attr("rx",parseFloat(t.attr("rx"))-e),t.attr("ry",parseFloat(t.attr("ry"))-i);else if("polygon"==n){var o=t[0].getBBox(),r=o.x+o.width/2,s=o.y+o.height/2,h=t.attr("points").split(" "),a="";for(var l in h){var p=h[l].split(","),d=parseFloat(p[0]),u=parseFloat(p[1]);a+=(r-d)/(o.width/2)*e+d+","+((s-u)/(o.height/2)*i+u)+" "}t.attr("points",a)}},e.prototype.convertToPx=function(t){var i=t;if("string"==typeof t){var n=t.length,o=1;t.endsWith("px")?n-=2:t.endsWith("pt")&&(n-=2,o=e.GVPT_2_PX),i=parseFloat(t.substring(0,n))*o}return i},e.prototype.findEdge=function(t,e,i){var n=[];for(var o in this._edgesByName){var r=e(t,o);r&&(i&&i.push(this._edgesByName[o]),n.push(r))}return n},e.prototype.findLinked=function(e,i,n,o){var r=t(e),s=null;i&&(s=o);var h=this.findEdge(r.attr("data-name"),n,s);for(var a in h){var l=this._nodesByName[h[a]];o.is(l)||(o.push(l),this.findLinked(l,i,n,o))}},e.prototype.colorElement=function(e,i){var n=this.$element.css("background");e.find("polygon, ellipse, path").each(function(){var e=t(this),o=e.data("graphviz.svg.color");o.fill&&"path"!=e.prop("tagName")&&e.attr("fill",i(o.fill,n)),o.stroke&&e.attr("stroke",i(o.stroke,n))})},e.prototype.restoreElement=function(e){e.find("polygon, ellipse, path").each(function(){var e=t(this),i=e.data("graphviz.svg.color");i.fill&&e.attr("fill",i.fill),i.stroke&&e.attr("stroke",i.stroke)})},e.prototype.nodes=function(){return this.$nodes},e.prototype.edges=function(){return this.$edges},e.prototype.nodesByName=function(){return this._nodesByName},e.prototype.edgesByName=function(){return this._edgesByName},e.prototype.linkedTo=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n="->"+t;return e.endsWith(n)&&(i=e.substring(0,e.length-n.length)),i},n),n},e.prototype.linkedFrom=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n=t+"->";return e.startsWith(n)&&(i=e.substring(n.length)),i},n),n},e.prototype.linked=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){return"^"+name+"--(.*)$"},n),this.findLinked(e,i,function(t,e){return"^(.*)--"+name+"$"},n),n},e.prototype.tooltip=function(e,i){var n=this.options;e.each(function(){t(this).children("a[title]").each(function(){i?n.tooltips.show.call(this):n.tooltips.hide.call(this)})})},e.prototype.bringToFront=function(t){t.detach().appendTo(this.$graph)},e.prototype.sendToBack=function(t){this.$background.length?$element.insertAfter(this.$background):t.detach().prependTo(this.$graph)},e.prototype.highlight=function(e,i){var n=this,o=this.options,r=this.$nodes.add(this.$edges);e&&e.length>0?(r.not(e).each(function(){n.colorElement(t(this),o.highlight.unselected),n.tooltip(t(this))}),e.each(function(){n.colorElement(t(this),o.highlight.selected)}),i&&this.tooltip(e,!0)):(r.each(function(){n.restoreElement(t(this))}),this.tooltip(r))},e.prototype.destroy=function(){var t=this;this.hide(function(){t.$element.off("."+t.type).removeData(t.type)})};var i=t.fn.graphviz;t.fn.graphviz=function(i){return this.each(function(){var n=t(this),o=n.data("graphviz.svg"),r="object"==typeof i&&i;!o&&/destroy/.test(i)||(o||n.data("graphviz.svg",o=new e(this,r)),"string"==typeof i&&o[i]())})},t.fn.graphviz.Constructor=e,t.fn.graphviz.noConflict=function(){return t.fn.graphviz=i,this}}(jQuery);</script>
+		<script type="text/javascript">
+ 			$(document).ready(function(){
+                $("#graph").graphviz({
+                    svg: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.5 (20260411.2331)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="883pt" height="317pt"
+ viewBox="0.00 0.00 883.00 317.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 313)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-313 879,-313 879,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_G</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M20,-8C20,-8 855,-8 855,-8 861,-8 867,-14 867,-20 867,-20 867,-289 867,-289 867,-295 861,-301 855,-301 855,-301 20,-301 20,-301 14,-301 8,-295 8,-289 8,-289 8,-20 8,-20 8,-14 14,-8 20,-8"/>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_tool_chat</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M28,-100.5C28,-100.5 568,-100.5 568,-100.5 574,-100.5 580,-106.5 580,-112.5 580,-112.5 580,-237 580,-237 580,-243 574,-249 568,-249 568,-249 28,-249 28,-249 22,-249 16,-243 16,-237 16,-237 16,-112.5 16,-112.5 16,-106.5 22,-100.5 28,-100.5"/>
+<text xml:space="preserve" text-anchor="middle" x="298" y="-231.7" font-family="Times New Roman,serif" font-size="14.00">tool_chat</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_tools</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M301,-16C301,-16 847,-16 847,-16 853,-16 859,-22 859,-28 859,-28 859,-80.5 859,-80.5 859,-86.5 853,-92.5 847,-92.5 847,-92.5 301,-92.5 301,-92.5 295,-92.5 289,-86.5 289,-80.5 289,-80.5 289,-28 289,-28 289,-22 295,-16 301,-16"/>
+<text xml:space="preserve" text-anchor="middle" x="574" y="-75.2" font-family="Times New Roman,serif" font-size="14.00">tools</text>
+</g>
+<!-- tool_chat -->
+<g id="node1" class="node">
+<title>tool_chat</title>
+<g id="a_node1"><a xlink:title="tool_chat&#10;D:AIpromptpractice02tool_chat.py">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="311" cy="-275" rx="45.21" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="311" y="-269.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">tool_chat</text>
+</a>
+</g>
+</g>
+<!-- tool_chat__call_llm -->
+<g id="node3" class="node">
+<title>tool_chat__call_llm</title>
+<g id="a_node3"><a xlink:title="tool_chat.call_llm&#10;D:AIpromptpractice02tool_chat.py:39&#10;function in tool_chat">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="360" cy="-126.5" rx="41.63" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="360" y="-121.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">call_llm</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__call_llm -->
+<g id="edge1" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__call_llm</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M305.71,-256.68C300.76,-237.31 295.56,-205.38 306,-180.5 311.02,-168.54 320.21,-157.92 329.59,-149.38"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="331.62,-152.25 337,-143.13 327.1,-146.9 331.62,-152.25"/>
+</g>
+<!-- tool_chat__execute_tool_call -->
+<g id="node4" class="node">
+<title>tool_chat__execute_tool_call</title>
+<g id="a_node4"><a xlink:title="tool_chat.execute_tool_call&#10;D:AIpromptpractice02tool_chat.py:72&#10;function in tool_chat">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="496" cy="-126.5" rx="75.92" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="496" y="-121.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">execute_tool_call</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__execute_tool_call -->
+<g id="edge2" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__execute_tool_call</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M310.64,-256.77C310.51,-232.98 311.68,-191.75 321,-180.5 328.52,-171.42 386.27,-155.02 433.4,-142.86"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="434.21,-146.27 443.03,-140.4 432.48,-139.49 434.21,-146.27"/>
+</g>
+<!-- tool_chat__get_system_prompt -->
+<g id="node5" class="node">
+<title>tool_chat__get_system_prompt</title>
+<g id="a_node5"><a xlink:title="tool_chat.get_system_prompt&#10;D:AIpromptpractice02tool_chat.py:20&#10;function in tool_chat">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="109" cy="-126.5" rx="84.62" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="109" y="-121.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">get_system_prompt</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__get_system_prompt -->
+<g id="edge3" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__get_system_prompt</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M285.05,-260.05C279.02,-256.59 272.71,-252.79 267,-249 219.77,-217.64 168.28,-176.66 137.33,-151.21"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="139.89,-148.79 129.95,-145.12 135.44,-154.19 139.89,-148.79"/>
+</g>
+<!-- tool_chat__load_env -->
+<g id="node6" class="node">
+<title>tool_chat__load_env</title>
+<g id="a_node6"><a xlink:title="tool_chat.load_env&#10;D:AIpromptpractice02tool_chat.py:8&#10;function in tool_chat">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="256" cy="-126.5" rx="44.7" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="256" y="-121.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">load_env</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__load_env -->
+<g id="edge4" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__load_env</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M300.15,-257.06C298.66,-254.41 297.22,-251.67 296,-249 281.88,-218.15 270.36,-180.84 263.38,-155.77"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="266.81,-155.05 260.8,-146.32 260.05,-156.89 266.81,-155.05"/>
+</g>
+<!-- tool_chat__main -->
+<g id="node7" class="node">
+<title>tool_chat__main</title>
+<g id="a_node7"><a xlink:title="tool_chat.main&#10;D:AIpromptpractice02tool_chat.py:103&#10;function in tool_chat">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="360" cy="-198.5" rx="29.86" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="360" y="-193.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">main</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__main -->
+<g id="edge5" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__main</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M316.56,-256.72C322.07,-246.75 330.24,-234.06 338.1,-223.17"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="340.74,-225.48 343.94,-215.38 335.14,-221.28 340.74,-225.48"/>
+</g>
+<!-- tool_chat&#45;&gt;tool_chat__main -->
+<g id="edge6" class="edge">
+<title>tool_chat&#45;&gt;tool_chat__main</title>
+<path fill="none" stroke="#000000" d="M327.31,-257.83C334.42,-248.62 342.44,-236.85 348.88,-226.29"/>
+<polygon fill="#000000" stroke="#000000" points="351.72,-228.38 353.73,-217.98 345.67,-224.85 351.72,-228.38"/>
+</g>
+<!-- tools__create_file -->
+<g id="node8" class="node">
+<title>tools__create_file</title>
+<g id="a_node8"><a xlink:title="tools.create_file&#10;D:AIpromptpractice02tools.py:98&#10;function in tools">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="347" cy="-42" rx="49.82" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="347" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">create_file</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tools__create_file -->
+<g id="edge7" class="edge">
+<title>tool_chat&#45;&gt;tools__create_file</title>
+<path fill="none" stroke="#000000" d="M356.24,-273.12C429.87,-271.21 568.98,-265.46 584,-249 606.25,-224.62 606.8,-124.35 584,-100.5 570.32,-86.19 424.45,-99.69 406,-92.5 392.18,-87.12 379.26,-77.1 369.05,-67.48"/>
+<polygon fill="#000000" stroke="#000000" points="371.78,-65.26 362.23,-60.67 366.83,-70.22 371.78,-65.26"/>
+</g>
+<!-- tools__delete_file -->
+<g id="node9" class="node">
+<title>tools__delete_file</title>
+<g id="a_node9"><a xlink:title="tools.delete_file&#10;D:AIpromptpractice02tools.py:72&#10;function in tools">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="465" cy="-42" rx="49.82" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="465" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">delete_file</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tools__delete_file -->
+<g id="edge8" class="edge">
+<title>tool_chat&#45;&gt;tools__delete_file</title>
+<path fill="none" stroke="#000000" d="M356.25,-273.33C432.78,-271.71 581.09,-266.36 597,-249 602.07,-243.47 600.21,-105.14 596,-100.5 585.03,-88.42 537.98,-98.97 523,-92.5 509.65,-86.73 497.08,-76.8 487.08,-67.35"/>
+<polygon fill="#000000" stroke="#000000" points="489.61,-64.93 480.07,-60.34 484.67,-69.88 489.61,-64.93"/>
+</g>
+<!-- tools__list_files -->
+<g id="node10" class="node">
+<title>tools__list_files</title>
+<g id="a_node10"><a xlink:title="tools.list_files&#10;D:AIpromptpractice02tools.py:5&#10;function in tools">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="575" cy="-42" rx="42.65" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="575" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">list_files</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tools__list_files -->
+<g id="edge9" class="edge">
+<title>tool_chat&#45;&gt;tools__list_files</title>
+<path fill="none" stroke="#000000" d="M356.42,-273.43C434.55,-271.97 587.62,-266.84 604,-249 649.47,-199.48 613.48,-113.05 590.45,-69.58"/>
+<polygon fill="#000000" stroke="#000000" points="593.67,-68.17 585.8,-61.07 587.53,-71.53 593.67,-68.17"/>
+</g>
+<!-- tools__read_file -->
+<g id="node11" class="node">
+<title>tools__read_file</title>
+<g id="a_node11"><a xlink:title="tools.read_file&#10;D:AIpromptpractice02tools.py:130&#10;function in tools">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="679" cy="-42" rx="43.67" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="679" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">read_file</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tools__read_file -->
+<g id="edge10" class="edge">
+<title>tool_chat&#45;&gt;tools__read_file</title>
+<path fill="none" stroke="#000000" d="M356.67,-274.32C431.1,-274.17 574.78,-270.93 620,-249 677.01,-221.34 693.84,-203.49 717,-144.5 724.15,-126.3 722.63,-119.23 717,-100.5 713.57,-89.1 707.08,-77.88 700.41,-68.42"/>
+<polygon fill="#000000" stroke="#000000" points="703.24,-66.36 694.43,-60.48 697.64,-70.57 703.24,-66.36"/>
+</g>
+<!-- tools__rename_file -->
+<g id="node12" class="node">
+<title>tools__rename_file</title>
+<g id="a_node12"><a xlink:title="tools.rename_file&#10;D:AIpromptpractice02tools.py:44&#10;function in tools">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="796" cy="-42" rx="55.45" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="796" y="-36.95" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">rename_file</text>
+</a>
+</g>
+</g>
+<!-- tool_chat&#45;&gt;tools__rename_file -->
+<g id="edge11" class="edge">
+<title>tool_chat&#45;&gt;tools__rename_file</title>
+<path fill="none" stroke="#000000" d="M356.29,-273.06C445.83,-270.88 639.1,-264.44 665,-249 733.13,-208.4 771.66,-117.07 787.45,-70.88"/>
+<polygon fill="#000000" stroke="#000000" points="790.7,-72.2 790.51,-61.61 784.06,-70.01 790.7,-72.2"/>
+</g>
+<!-- tools -->
+<g id="node2" class="node">
+<title>tools</title>
+<g id="a_node2"><a xlink:title="tools&#10;D:AIpromptpractice02tools.py">
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="679" cy="-126.5" rx="28.83" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="679" y="-121.45" font-family="Times New Roman,serif" font-size="14.00" fill="#000000">tools</text>
+</a>
+</g>
+</g>
+<!-- tools&#45;&gt;tools__create_file -->
+<g id="edge21" class="edge">
+<title>tools&#45;&gt;tools__create_file</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M654.69,-116.42C638.34,-110.75 616.18,-103.91 596,-100.5 554.33,-93.46 445.4,-107.78 406,-92.5 392.17,-87.14 379.25,-77.12 369.04,-67.5"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="371.77,-65.28 362.22,-60.69 366.82,-70.23 371.77,-65.28"/>
+</g>
+<!-- tools&#45;&gt;tools__delete_file -->
+<g id="edge22" class="edge">
+<title>tools&#45;&gt;tools__delete_file</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M656.48,-114.7C644.69,-109.53 629.86,-103.77 616,-100.5 575.62,-90.97 561.27,-108.51 523,-92.5 509.59,-86.89 497.01,-76.98 487.02,-67.5"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="489.55,-65.08 480.01,-60.46 484.59,-70.02 489.55,-65.08"/>
+</g>
+<!-- tools&#45;&gt;tools__list_files -->
+<g id="edge23" class="edge">
+<title>tools&#45;&gt;tools__list_files</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M657.93,-113.79C647.92,-107.88 635.99,-100.31 626,-92.5 616.23,-84.86 606.27,-75.59 597.78,-67.15"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="600.4,-64.82 590.9,-60.15 595.41,-69.73 600.4,-64.82"/>
+</g>
+<!-- tools&#45;&gt;tools__read_file -->
+<g id="edge24" class="edge">
+<title>tools&#45;&gt;tools__read_file</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M679,-108C679,-97.5 679,-83.89 679,-71.83"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="682.5,-71.98 679,-61.98 675.5,-71.98 682.5,-71.98"/>
+</g>
+<!-- tools&#45;&gt;tools__rename_file -->
+<g id="edge25" class="edge">
+<title>tools&#45;&gt;tools__rename_file</title>
+<path fill="none" stroke="#838b8b" stroke-dasharray="5,2" d="M699.44,-113.44C709.42,-107.38 721.5,-99.8 732,-92.5 743.89,-84.23 756.59,-74.59 767.51,-66.03"/>
+<polygon fill="#838b8b" stroke="#838b8b" points="769.36,-69.03 775.03,-60.08 765.01,-63.54 769.36,-69.03"/>
+</g>
+<!-- tool_chat__execute_tool_call&#45;&gt;tools__create_file -->
+<g id="edge12" class="edge">
+<title>tool_chat__execute_tool_call&#45;&gt;tools__create_file</title>
+<path fill="none" stroke="#000000" d="M449.76,-112C435.27,-106.87 419.54,-100.34 406,-92.5 393.83,-85.45 381.7,-75.84 371.63,-66.96"/>
+<polygon fill="#000000" stroke="#000000" points="374.23,-64.6 364.48,-60.45 369.52,-69.77 374.23,-64.6"/>
+</g>
+<!-- tool_chat__execute_tool_call&#45;&gt;tools__delete_file -->
+<g id="edge13" class="edge">
+<title>tool_chat__execute_tool_call&#45;&gt;tools__delete_file</title>
+<path fill="none" stroke="#000000" d="M489.58,-108.41C485.5,-97.57 480.14,-83.29 475.46,-70.84"/>
+<polygon fill="#000000" stroke="#000000" points="478.74,-69.62 471.95,-61.49 472.19,-72.08 478.74,-69.62"/>
+</g>
+<!-- tool_chat__execute_tool_call&#45;&gt;tools__list_files -->
+<g id="edge14" class="edge">
+<title>tool_chat__execute_tool_call&#45;&gt;tools__list_files</title>
+<path fill="none" stroke="#000000" d="M511.99,-108.8C523.38,-96.91 538.87,-80.73 551.64,-67.39"/>
+<polygon fill="#000000" stroke="#000000" points="554.14,-69.85 558.53,-60.2 549.08,-65 554.14,-69.85"/>
+</g>
+<!-- tool_chat__execute_tool_call&#45;&gt;tools__read_file -->
+<g id="edge15" class="edge">
+<title>tool_chat__execute_tool_call&#45;&gt;tools__read_file</title>
+<path fill="none" stroke="#000000" d="M538.03,-111.09C550.18,-107.27 563.53,-103.41 576,-100.5 598.34,-95.29 606.42,-102.65 627,-92.5 638.86,-86.65 649.82,-77.15 658.59,-68.02"/>
+<polygon fill="#000000" stroke="#000000" points="661.15,-70.41 665.27,-60.65 655.96,-65.71 661.15,-70.41"/>
+</g>
+<!-- tool_chat__execute_tool_call&#45;&gt;tools__rename_file -->
+<g id="edge16" class="edge">
+<title>tool_chat__execute_tool_call&#45;&gt;tools__rename_file</title>
+<path fill="none" stroke="#000000" d="M536.21,-110.77C548.78,-106.75 562.82,-102.86 576,-100.5 610.17,-94.39 699.45,-104.56 732,-92.5 746.76,-87.03 760.86,-76.87 772.05,-67.17"/>
+<polygon fill="#000000" stroke="#000000" points="774.21,-69.93 779.24,-60.6 769.49,-64.76 774.21,-69.93"/>
+</g>
+<!-- tool_chat__main&#45;&gt;tool_chat__call_llm -->
+<g id="edge17" class="edge">
+<title>tool_chat__main&#45;&gt;tool_chat__call_llm</title>
+<path fill="none" stroke="#000000" d="M360,-180.2C360,-172.91 360,-164.23 360,-156.04"/>
+<polygon fill="#000000" stroke="#000000" points="363.5,-156.12 360,-146.12 356.5,-156.12 363.5,-156.12"/>
+</g>
+<!-- tool_chat__main&#45;&gt;tool_chat__execute_tool_call -->
+<g id="edge18" class="edge">
+<title>tool_chat__main&#45;&gt;tool_chat__execute_tool_call</title>
+<path fill="none" stroke="#000000" d="M382.15,-186.1C401.82,-175.97 431.07,-160.92 455,-148.6"/>
+<polygon fill="#000000" stroke="#000000" points="456.59,-151.72 463.88,-144.03 453.38,-145.5 456.59,-151.72"/>
+</g>
+<!-- tool_chat__main&#45;&gt;tool_chat__get_system_prompt -->
+<g id="edge19" class="edge">
+<title>tool_chat__main&#45;&gt;tool_chat__get_system_prompt</title>
+<path fill="none" stroke="#000000" d="M338.37,-185.79C334.33,-183.86 330.09,-182 326,-180.5 279.54,-163.46 225.49,-150.24 182.95,-141.26"/>
+<polygon fill="#000000" stroke="#000000" points="183.82,-137.87 173.32,-139.27 182.4,-144.72 183.82,-137.87"/>
+</g>
+<!-- tool_chat__main&#45;&gt;tool_chat__load_env -->
+<g id="edge20" class="edge">
+<title>tool_chat__main&#45;&gt;tool_chat__load_env</title>
+<path fill="none" stroke="#000000" d="M340.92,-184.66C325.98,-174.6 304.88,-160.4 287.45,-148.67"/>
+<polygon fill="#000000" stroke="#000000" points="289.71,-145.97 279.46,-143.29 285.8,-151.78 289.71,-145.97"/>
+</g>
+</g>
+</svg>
+`,
+                    ready: function() {
+                        var gv = this
+                        gv.nodes().click(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight($set, true)
+                            gv.bringToFront($set)
+                        })
+                        $(document).keydown(function (evt) {
+                            if (evt.keyCode == 27) {
+                                gv.highlight()
+                            }
+                        })
+                    }
+                });
+            });
+		</script>
+	</body>
+</html>

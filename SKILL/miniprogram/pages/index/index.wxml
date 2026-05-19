@@ -1,0 +1,179 @@
+<view class="container">
+  <!-- 语音录制按钮 -->
+  <view class="record-section">
+    <view 
+      class="record-btn {{isRecording ? 'recording' : ''}}"
+      bind:touchstart="onRecordStart"
+      bind:touchend="onRecordEnd"
+    >
+      <image class="record-icon" src="/images/mic.png" mode="aspectFit"/>
+      <text class="record-text">{{isRecording ? '松手结束' : '按住说话'}}</text>
+    </view>
+    <text class="record-hint">{{isRecording ? '正在录音 ' + recordTime + 's' : '长按快速记录语音'}}</text>
+  </view>
+
+  <!-- 手动输入按钮 -->
+  <view class="manual-section">
+    <button class="manual-btn" bindtap="showManualInput">
+      <image class="manual-icon" src="/images/edit.png" mode="aspectFit"/>
+      <text>手动输入</text>
+    </button>
+    <button class="import-btn" bindtap="importFromWechat">
+      <image class="import-icon" src="/images/import.png" mode="aspectFit"/>
+      <text>从微信导入</text>
+    </button>
+  </view>
+
+  <!-- 快捷标签 -->
+  <view class="quick-tags card">
+    <view class="section-title">快捷标签</view>
+    <view class="tags-list">
+      <view 
+        class="tag-item"
+        wx:for="{{predefinedTags}}"
+        wx:key="id"
+        bindtap="showManualInput"
+      >
+        <text class="tag-icon">{{item.icon}}</text>
+        <text class="tag-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 输入弹窗 -->
+<view class="modal {{showInputModal ? 'show' : ''}}" bindtap="closeInputModal">
+  <view class="modal-content" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">记录小事</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeInputModal"/>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y>
+      <!-- 内容输入 -->
+      <view class="form-item">
+        <textarea 
+          class="content-input"
+          placeholder="记录发生了什么..."
+          maxlength="200"
+          value="{{content}}"
+          bindinput="onContentInput"
+        />
+        <text class="char-count">{{content.length}}/200</text>
+      </view>
+      
+      <!-- 耗时设置 -->
+      <view class="form-item">
+        <view class="form-label">预估耗时（分钟）</view>
+        <view class="minutes-control">
+          <view class="minus-btn" bindtap="decreaseMinutes">-</view>
+          <input 
+            class="minutes-input"
+            type="number"
+            value="{{minutes}}"
+            bindinput="onMinutesInput"
+          />
+          <view class="plus-btn" bindtap="increaseMinutes">+</view>
+        </view>
+      </view>
+      
+      <!-- 标签选择 -->
+      <view class="form-item">
+        <view class="form-label">
+          选择标签
+          <text class="label-hint">（至少1个，最多3个）</text>
+        </view>
+        <view class="selected-tags" bindtap="showTagSelector">
+          <view class="tag tag-selected" wx:for="{{selectedTags}}" wx:key="id">
+            {{item.icon}} {{item.name}}
+          </view>
+          <view class="add-tag" wx:if="{{selectedTags.length < 3}}">
+            <text>+ 添加标签</text>
+          </view>
+          <view class="no-tag" wx:if="{{selectedTags.length === 0}}">
+            <text>点击选择标签</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 图片上传 -->
+      <view class="form-item">
+        <view class="form-label">添加照片（最多3张）</view>
+        <view class="images-list">
+          <view class="image-item" wx:for="{{images}}" wx:key="*this">
+            <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}"/>
+            <image class="remove-btn" src="/images/delete.png" bindtap="removeImage" data-index="{{index}}"/>
+          </view>
+          <view class="add-image" bindtap="chooseImage" wx:if="{{images.length < 3}}">
+            <image src="/images/camera.png" mode="aspectFit"/>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 录音展示 -->
+      <view class="form-item" wx:if="{{audio}}">
+        <view class="form-label">语音记录</view>
+        <view class="audio-item">
+          <image class="audio-icon" src="/images/audio.png" bindtap="playAudio"/>
+          <text class="audio-text">语音已保存</text>
+          <image class="remove-btn" src="/images/delete.png" bindtap="removeAudio"/>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="modal-footer">
+      <button class="save-btn {{loading ? 'loading' : ''}}" bindtap="saveTask">
+        {{loading ? '保存中...' : '保存'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 标签选择弹窗 -->
+<view class="modal {{showTagModal ? 'show' : ''}}" bindtap="closeTagModal">
+  <view class="modal-content tag-modal" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">选择标签</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeTagModal"/>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y>
+      <view class="tag-section">
+        <view class="tag-section-title">预设标签</view>
+        <view class="tag-grid">
+          <view 
+            class="tag-option {{selectedTags.find(t => t.id === item.id) ? 'selected' : ''}}"
+            wx:for="{{predefinedTags}}"
+            wx:key="id"
+            bindtap="toggleTag"
+            data-tag="{{item}}"
+          >
+            <text class="tag-icon">{{item.icon}}</text>
+            <text class="tag-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="tag-section" wx:if="{{customTags.length > 0}}">
+        <view class="tag-section-title">自定义标签</view>
+        <view class="tag-grid">
+          <view 
+            class="tag-option {{selectedTags.find(t => t.id === item.id) ? 'selected' : ''}}"
+            wx:for="{{customTags}}"
+            wx:key="id"
+            bindtap="toggleTag"
+            data-tag="{{item}}"
+          >
+            <text class="tag-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="modal-footer">
+      <button class="confirm-btn" bindtap="closeTagModal">
+        确定 ({{selectedTags.length}}/3)
+      </button>
+    </view>
+  </view>
+</view>

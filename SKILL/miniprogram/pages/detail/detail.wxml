@@ -1,0 +1,217 @@
+<view class="container">
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 详情内容 -->
+  <view class="detail-content" wx:if="{{!loading && task}}">
+    <!-- 头部信息 -->
+    <view class="header-card">
+      <view class="task-icon">{{task.tagIcon}}</view>
+      <view class="header-info">
+        <view class="tags-row">
+          <text class="tag" wx:for="{{task.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+        <text class="create-time">{{task.createTimeStr}}</text>
+      </view>
+      <view class="status-badge {{task.status === 1 ? 'completed' : 'pending'}}">
+        {{task.status === 1 ? '已完成' : '待处理'}}
+      </view>
+    </view>
+
+    <!-- 内容区 -->
+    <view class="content-card">
+      <view class="content-text">{{task.content}}</view>
+      <view class="meta-row">
+        <view class="meta-item">
+          <text class="meta-icon">⏱️</text>
+          <text>{{task.minutes}} 分钟</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 图片证据 -->
+    <view class="evidence-card" wx:if="{{images.length > 0}}">
+      <view class="card-title">照片证据 ({{images.length}}张)</view>
+      <scroll-view class="images-scroll" scroll-x>
+        <view class="images-list">
+          <view class="image-item" wx:for="{{images}}" wx:key="*this">
+            <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}"/>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 录音证据 -->
+    <view class="evidence-card" wx:if="{{audio}}">
+      <view class="card-title">语音证据</view>
+      <view class="audio-player">
+        <image class="play-btn" src="/images/play.png" bindtap="playAudio"/>
+        <view class="audio-wave">
+          <view class="wave-bar" wx:for="{{12}}" wx:key="*this"></view>
+        </view>
+        <text class="audio-text">点击播放</text>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="remark-card" wx:if="{{task.remark}}">
+      <view class="card-title">处理备注</view>
+      <view class="remark-text">{{task.remark}}</view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="actions-bar">
+      <view class="action-btn" bindtap="enterEditMode">
+        <image src="/images/edit.png"/>
+        <text>编辑</text>
+      </view>
+      <button class="action-btn" open-type="share">
+        <image src="/images/share.png"/>
+        <text>转发</text>
+      </button>
+      <view class="action-btn" bindtap="generateImage">
+        <image src="/images/image.png"/>
+        <text>生成长图</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 隐藏的画布用于生成长图 -->
+<canvas canvas-id="evidence-canvas" style="width: 750px; height: 1200px; position: absolute; left: -9999px;"></canvas>
+
+<!-- 编辑弹窗 -->
+<view class="modal {{isEditing ? 'show' : ''}}" bindtap="exitEditMode">
+  <view class="modal-content edit-modal" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">编辑记录</text>
+      <image class="close-btn" src="/images/close.png" bindtap="exitEditMode"/>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y>
+      <!-- 内容 -->
+      <view class="form-item">
+        <view class="form-label">内容</view>
+        <textarea 
+          class="content-input"
+          placeholder="记录发生了什么..."
+          maxlength="200"
+          value="{{editForm.content}}"
+          bindinput="onContentInput"
+        />
+      </view>
+      
+      <!-- 耗时 -->
+      <view class="form-item">
+        <view class="form-label">耗时（分钟）</view>
+        <input 
+          class="minutes-input"
+          type="number"
+          value="{{editForm.minutes}}"
+          bindinput="onMinutesInput"
+        />
+      </view>
+      
+      <!-- 状态 -->
+      <view class="form-item">
+        <view class="form-label">状态</view>
+        <view class="status-toggle" bindtap="toggleStatus">
+          <view class="toggle-option {{editForm.status === 0 ? 'active' : ''}}">待处理</view>
+          <view class="toggle-option {{editForm.status === 1 ? 'active' : ''}}">已完成</view>
+        </view>
+      </view>
+      
+      <!-- 标签 -->
+      <view class="form-item">
+        <view class="form-label">标签</view>
+        <view class="selected-tags" bindtap="showTagSelector">
+          <view class="tag tag-selected" wx:for="{{editForm.tags}}" wx:key="id">
+            {{item.icon}} {{item.name}}
+          </view>
+          <view class="add-tag" wx:if="{{editForm.tags.length < 3}}">
+            <text>+ 添加标签</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 备注 -->
+      <view class="form-item">
+        <view class="form-label">处理备注</view>
+        <textarea 
+          class="remark-input"
+          placeholder="可选，添加处理说明..."
+          value="{{editForm.remark}}"
+          bindinput="onRemarkInput"
+        />
+      </view>
+      
+      <!-- 图片 -->
+      <view class="form-item">
+        <view class="form-label">照片证据</view>
+        <view class="images-list">
+          <view class="image-item" wx:for="{{images}}" wx:key="*this">
+            <image src="{{item}}" mode="aspectFill"/>
+            <image class="remove-btn" src="/images/delete.png" bindtap="removeImage" data-index="{{index}}"/>
+          </view>
+          <view class="add-image" bindtap="addImage" wx:if="{{images.length < 3}}">
+            <image src="/images/camera.png"/>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 录音 -->
+      <view class="form-item">
+        <view class="form-label">语音证据</view>
+        <view class="audio-item" wx:if="{{audio}}">
+          <image class="audio-icon" src="/images/audio.png" bindtap="playAudio"/>
+          <text class="audio-text">已录制</text>
+          <view class="audio-actions">
+            <text bindtap="reRecord">重新录制</text>
+            <text bindtap="removeAudio">删除</text>
+          </view>
+        </view>
+        <view class="add-audio" wx:if="{{!audio}}" bindtap="reRecord">
+          <image src="/images/mic.png"/>
+          <text>点击录制</text>
+        </view>
+      </view>
+    </scroll-view>
+    
+    <view class="modal-footer">
+      <button class="save-btn" bindtap="saveEdit">保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- 标签选择弹窗 -->
+<view class="modal {{showTagModal ? 'show' : ''}}" bindtap="closeTagModal">
+  <view class="modal-content tag-modal" catchtap="preventClose">
+    <view class="modal-header">
+      <text class="modal-title">选择标签</text>
+      <image class="close-btn" src="/images/close.png" bindtap="closeTagModal"/>
+    </view>
+    
+    <view class="modal-body">
+      <view class="tag-grid">
+        <view 
+          class="tag-option {{editForm.tags.find(t => t.id === item.id) ? 'selected' : ''}}"
+          wx:for="{{predefinedTags}}"
+          wx:key="id"
+          bindtap="toggleTag"
+          data-tag="{{item}}"
+        >
+          <text class="tag-icon">{{item.icon}}</text>
+          <text class="tag-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-footer">
+      <button class="confirm-btn" bindtap="closeTagModal">
+        确定 ({{editForm.tags.length}}/3)
+      </button>
+    </view>
+  </view>
+</view>

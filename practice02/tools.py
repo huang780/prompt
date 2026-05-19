@@ -1,5 +1,8 @@
 import os
 import time
+import http.client
+import urllib.parse
+from datetime import datetime
 
 # 1. 列出某个目录下有哪些文件（包括文件的基本属性、大小等信息）
 def list_files(directory):
@@ -153,3 +156,65 @@ def read_file(directory, filename):
         return content
     except Exception as e:
         return f"错误：{str(e)}"
+
+# 6. 通过curl访问网页并返回网页内容
+def curl(url):
+    """
+    通过HTTP/HTTPS访问网页并返回网页内容
+    
+    Args:
+        url: 网页URL地址
+    
+    Returns:
+        网页内容或错误信息
+    """
+    try:
+        parsed_url = urllib.parse.urlparse(url)
+        
+        # 获取协议、主机和路径
+        scheme = parsed_url.scheme
+        host = parsed_url.hostname
+        port = parsed_url.port
+        
+        # 对路径进行URL编码，处理中文等非ASCII字符
+        path = urllib.parse.quote(parsed_url.path, safe='/') if parsed_url.path else '/'
+        
+        # 根据协议创建连接
+        if scheme == 'https':
+            conn = http.client.HTTPSConnection(host, port or 443)
+        elif scheme == 'http':
+            conn = http.client.HTTPConnection(host, port or 80)
+        else:
+            return f"错误：不支持的协议 {scheme}"
+        
+        # 添加查询参数
+        if parsed_url.query:
+            path += '?' + parsed_url.query
+        
+        # 发送请求
+        conn.request('GET', path)
+        response = conn.getresponse()
+        
+        # 获取响应状态和内容
+        status = response.status
+        content = response.read().decode('utf-8', errors='ignore')
+        
+        conn.close()
+        
+        if status >= 200 and status < 300:
+            return content
+        else:
+            return f"错误：HTTP状态码 {status}\n{content[:500]}"
+    except Exception as e:
+        return f"错误：{str(e)}"
+
+# 7. 获取今天的日期
+def get_date():
+    """
+    获取今天的日期
+    
+    Returns:
+        今天的日期字符串，格式为YYYY-MM-DD
+    """
+    today = datetime.now()
+    return today.strftime("%Y-%m-%d")
